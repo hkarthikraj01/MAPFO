@@ -14,18 +14,31 @@
     <br>
     <input type="text" placeholder="OTP" id="b">
     <button onclick="view()" id="mv" style="display: block;">verify</button><br>
-    <input type="search" class="form-control" id="from-input" placeholder="From"><br>
-    <input type="search" class="form-control" id="to-input" placeholder="To"><br>
-    <input type="submit" name="submit" id="submit" onclick="teleBot()"  value="Calc"/>
-    <div id="map"></div>
-    <b><label for="to-input">Distance</label></b>
-    <label id="value-distance" class="form-text">calculate...</label><br>
-    <b><label for="to-input">Total Price</label></b>
-    <label id="value-price" class="form-text">calculate...</label> - <label id="value-price2" class="form-text"></label>
-<br>                
+    <select id="cars" name="cars" >
+        <option value="Sedan">Sedan</option>
+        <option value="Hatchback">Hatchback</option>
+        <option value="SUV">SUV</option>
+        <option value="Traveller">Traveller</option>
+      </select><br>
+    
+      <input type="text" id="location-1" name="origin" placeholder="Enter a start location..."> 
+      <input type="text" id="location-2" name="destination" placeholder="Enter a last location..."><br>
+      <button class="button" type="button" onclick="calcRoute();">Submit</button>
+      <button class="button" type="button" onclick="clearRoute();">Clear</button>
+      
+     <b> <div id="output" class="result-table"></div></b>
+      <div class="container-map" id="google-map"></div>       
 <input type="date" placeholder="date" id="date" required><br>  
 <input type="time" placeholder="time" id="time" required><br>  
-<input type="submit" name="submit" id="submit" onclick="teleBot()"  value="submit"/>
+<input type="submit" name="submit" id="submit" onclick=""  value="submit"/>
+
+
+
+
+             
+
+
+
 
     <p id="demo"></p>
     <p id="dem"></p>
@@ -87,121 +100,14 @@
         alert("Enter OTP");  
       }
     }
-     
-    
+   
     </script>
     
-		<script>
-            var markers = [];
-            var locations = [];
-            var map;
-            var distanceDirection;
-            var distanceDisplay;
-            function string2Location(input, index) {
-                var searchBox = new google.maps.places.SearchBox(input);
-                // map.controls[google.maps.ControlPosition.TOP_LEFT].push(input);
-                map.addListener('bounds_changed', function() {
-                    searchBox.setBounds(map.getBounds());
-                });
-                distanceDirection = new google.maps.DirectionsService();
-                distanceDisplay = new google.maps.DirectionsRenderer();
-                searchBox.addListener('places_changed', function() {
-                    var places = searchBox.getPlaces();
-                    if(places.length == 0) {
-                        return;
-                    }
-                    markers[index].setMap(null);
-                    var bounds = new google.maps.LatLngBounds();
-                    places.forEach(function(place) {
-                        if(!place.geometry) {
-                            console.log("Returned place contains no geometry");
-                            return;
-                        }
-                        var icon = {
-                            url: place.icon,
-                            size: new google.maps.Size(71, 71),
-                            origin: new google.maps.Point(0, 0),
-                            anchor: new google.maps.Point(17, 34),
-                            scaledSize: new google.maps.Size(25, 25)
-                        };
-                        markers[index]=new google.maps.Marker({
-                            map: map,
-                            icon: icon,
-                            title: place.name,
-                            position: place.geometry.location
-                        });
-                        if(index == 0) {
-                            locations[index]=place.geometry.location;
-                        }
-                        else {
-                            locations[index]=place.geometry.location;
-                        }
-                        // console.log(locations[index].lat() + ", " + locations[index].lng());
-                        if(place.geometry.viewport) {
-                            bounds.union(place.geometry.viewport);
-                        } else {
-                            bounds.extend(place.geometry.location);
-                        }
-                    });
-                    map.fitBounds(bounds);
-                    distanceDisplay.setMap(map);
-                });
-            }
-            function initAutocomplete() {
-                locations[0] = new google.maps.LatLng();
-                locations[1] = new google.maps.LatLng();
-                markers[0] = new google.maps.Marker();
-                markers[1] = new google.maps.Marker();
-                map = new google.maps.Map(document.getElementById('map'), {
-                    // Default position...
-                    center: {
-                        lat: 13.0827,
-                        lng: 80.2707
-                    },
-                    zoom: 13,
-                    // https://developers.google.com/maps/documentation/javascript/maptypes
-                    mapTypeId: 'roadmap', // https://developers.google.com/maps/documentation/gaming/support/roadmap
-                });
-                var from = document.getElementById('from-input');
-                var to = document.getElementById('to-input');
-                string2Location(from, 0);
-                string2Location(to, 1);
-                google.maps.event.addDomListener(document.getElementById('submit'), 'click', calcRoute);
-            }
-            function calcDistance(start, end) {
-                return(google.maps.geometry.spherical.computeDistanceBetween(start, end) / 1000).toFixed(2); //KM
-            }
-            function calcRoute() {
-                var value_distance=document.querySelector("#value-distance");
-                var value_price=document.querySelector("#value-price");
-                var value_price2=document.querySelector("#value-price2");
-                var start = new google.maps.LatLng(locations[0].lat(), locations[0].lng());
-                var end = new google.maps.LatLng(locations[1].lat(), locations[1].lng());
-                var distance=calcDistance(start, end);
-                value_distance.innerHTML=distance;
-                value_price.innerHTML="₹"+(distance * 14);
-                value_price2.innerHTML="₹"+(distance * 20);  // We can use .toFixed()...
-                var bounds = new google.maps.LatLngBounds();
-                bounds.extend(start);
-                bounds.extend(end);
-                map.fitBounds(bounds);
-                var request = {
-                    travelMode: google.maps.TravelMode.DRIVING,
-                    origin: start,
-                    destination: end,
-                };
-                distanceDirection.route(request, function(response, status) {
-                    if(status == google.maps.DirectionsStatus.OK) {
-                        distanceDisplay.setDirections(response);
-                        distanceDisplay.setMap(map);
-                    }
-                    else {
-                        alert("Error: From " + start.toUrlValue(6) + " to " + end.toUrlValue(6) + " failed : " + status);
-                    }
-                });
-            }
-            </script>
-            <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBNKpr4auBLgBgiOXJ41UUWTB58MZa6p3E&libraries=places&callback=initAutocomplete" async defer></script>
+		
+  
+      <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBNKpr4auBLgBgiOXJ41UUWTB58MZa6p3E&libraries=places"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+    <script src="js/main.js"></script>
     </body>
     </html>
     
