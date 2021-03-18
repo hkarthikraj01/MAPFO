@@ -1,0 +1,207 @@
+
+<html>
+    <head>
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    </head>
+    <body>
+        <input type="text" placeholder="Name" id="name" required>
+        <br>
+        <input type="text" placeholder="phonenumber" id="p" required>
+        <input onclick="sent()" type="button" value="Sent" id="ms" style="display: block;">
+      <div>  <span class="fa fa-stack fa-lg" id="ve" style="display: none;">
+            <i class="fa fa-certificate fa-stack-1x" style="font-size:25px;color: green" ></i>
+            <i class="fa fa-check fa-stack-1x fa-inverse" style="font-size:13px"></i></div>
+    <br>
+    <input type="text" placeholder="OTP" id="b">
+    <button onclick="view()" id="mv" style="display: block;">verify</button><br>
+    <input type="search" class="form-control" id="from-input" placeholder="From"><br>
+    <input type="search" class="form-control" id="to-input" placeholder="To"><br>
+    <input type="submit" name="submit" id="submit" onclick="teleBot()"  value="Calc"/>
+    <div id="map"></div>
+    <b><label for="to-input">Distance</label></b>
+    <label id="value-distance" class="form-text">calculate...</label><br>
+    <b><label for="to-input">Total Price</label></b>
+    <label id="value-price" class="form-text">calculate...</label> - <label id="value-price2" class="form-text"></label>
+<br>                
+<input type="date" placeholder="date" id="date" required><br>  
+<input type="time" placeholder="time" id="time" required><br>  
+<input type="submit" name="submit" id="submit" onclick="teleBot()"  value="submit"/>
+
+    <p id="demo"></p>
+    <p id="dem"></p>
+    
+    <script>
+     var a;
+      var b;
+      var c;
+      var p;
+    function sent() {
+      p=document.getElementById("p").value;
+      c = Math.floor((Math.random()*1000000)+1);
+      if(p!="")
+      {
+        var elem = document.getElementById("ms");
+        if (elem.value=="Edit") {elem.value = "Sent";document.getElementById("p").readOnly = false;}
+        else
+        { elem.value = "Edit";
+    
+        document.getElementById("p").readOnly = true;
+        document.getElementById("name").readOnly = true;
+      alert("OTP Sent");
+     var otp =window.open("https://www.fast2sms.com/dev/bulk?authorization=tXGFnAr4LNYZM8Q9jwPVHxWdvs6eahl2qk5of7SzpRbOUEumITTnoiOFHqdCLhzJPgaxer2mpZ8UNEyf&sender_id=FSTSMS&message= %0A..%0A Thanking For Registering%0AYour OTP : "+c+"%0A For CAB Booking "+"&language=english&route=p&numbers="+p);
+      }
+      }
+      else
+      {
+        alert("Enter Phone Number");  
+      }
+     if(otp){
+                setTimeout(function () { otp.close();}, 1000);
+        }
+       
+     }
+     function view() 
+     
+      {
+      b=document.getElementById("b").value;
+      if(b!=""){
+      if(c==b )
+        {
+            var y = document.getElementById("ms");
+        y.style.display = "none";
+        var y = document.getElementById("b");
+        y.style.display = "none";
+        var y = document.getElementById("mv");
+        y.style.display = "none";
+        var y = document.getElementById("ve");
+        y.style.display = "block";
+            alert("verify");
+        }
+      else
+        {
+            alert("not");
+        }
+      }
+      else
+      {
+        alert("Enter OTP");  
+      }
+    }
+     
+    
+    </script>
+    
+		<script>
+            var markers = [];
+            var locations = [];
+            var map;
+            var distanceDirection;
+            var distanceDisplay;
+            function string2Location(input, index) {
+                var searchBox = new google.maps.places.SearchBox(input);
+                // map.controls[google.maps.ControlPosition.TOP_LEFT].push(input);
+                map.addListener('bounds_changed', function() {
+                    searchBox.setBounds(map.getBounds());
+                });
+                distanceDirection = new google.maps.DirectionsService();
+                distanceDisplay = new google.maps.DirectionsRenderer();
+                searchBox.addListener('places_changed', function() {
+                    var places = searchBox.getPlaces();
+                    if(places.length == 0) {
+                        return;
+                    }
+                    markers[index].setMap(null);
+                    var bounds = new google.maps.LatLngBounds();
+                    places.forEach(function(place) {
+                        if(!place.geometry) {
+                            console.log("Returned place contains no geometry");
+                            return;
+                        }
+                        var icon = {
+                            url: place.icon,
+                            size: new google.maps.Size(71, 71),
+                            origin: new google.maps.Point(0, 0),
+                            anchor: new google.maps.Point(17, 34),
+                            scaledSize: new google.maps.Size(25, 25)
+                        };
+                        markers[index]=new google.maps.Marker({
+                            map: map,
+                            icon: icon,
+                            title: place.name,
+                            position: place.geometry.location
+                        });
+                        if(index == 0) {
+                            locations[index]=place.geometry.location;
+                        }
+                        else {
+                            locations[index]=place.geometry.location;
+                        }
+                        // console.log(locations[index].lat() + ", " + locations[index].lng());
+                        if(place.geometry.viewport) {
+                            bounds.union(place.geometry.viewport);
+                        } else {
+                            bounds.extend(place.geometry.location);
+                        }
+                    });
+                    map.fitBounds(bounds);
+                    distanceDisplay.setMap(map);
+                });
+            }
+            function initAutocomplete() {
+                locations[0] = new google.maps.LatLng();
+                locations[1] = new google.maps.LatLng();
+                markers[0] = new google.maps.Marker();
+                markers[1] = new google.maps.Marker();
+                map = new google.maps.Map(document.getElementById('map'), {
+                    // Default position...
+                    center: {
+                        lat: 13.0827,
+                        lng: 80.2707
+                    },
+                    zoom: 13,
+                    // https://developers.google.com/maps/documentation/javascript/maptypes
+                    mapTypeId: 'roadmap', // https://developers.google.com/maps/documentation/gaming/support/roadmap
+                });
+                var from = document.getElementById('from-input');
+                var to = document.getElementById('to-input');
+                string2Location(from, 0);
+                string2Location(to, 1);
+                google.maps.event.addDomListener(document.getElementById('submit'), 'click', calcRoute);
+            }
+            function calcDistance(start, end) {
+                return(google.maps.geometry.spherical.computeDistanceBetween(start, end) / 1000).toFixed(2); //KM
+            }
+            function calcRoute() {
+                var value_distance=document.querySelector("#value-distance");
+                var value_price=document.querySelector("#value-price");
+                var value_price2=document.querySelector("#value-price2");
+                var start = new google.maps.LatLng(locations[0].lat(), locations[0].lng());
+                var end = new google.maps.LatLng(locations[1].lat(), locations[1].lng());
+                var distance=calcDistance(start, end);
+                value_distance.innerHTML=distance;
+                value_price.innerHTML="₹"+(distance * 14);
+                value_price2.innerHTML="₹"+(distance * 20);  // We can use .toFixed()...
+                var bounds = new google.maps.LatLngBounds();
+                bounds.extend(start);
+                bounds.extend(end);
+                map.fitBounds(bounds);
+                var request = {
+                    travelMode: google.maps.TravelMode.DRIVING,
+                    origin: start,
+                    destination: end,
+                };
+                distanceDirection.route(request, function(response, status) {
+                    if(status == google.maps.DirectionsStatus.OK) {
+                        distanceDisplay.setDirections(response);
+                        distanceDisplay.setMap(map);
+                    }
+                    else {
+                        alert("Error: From " + start.toUrlValue(6) + " to " + end.toUrlValue(6) + " failed : " + status);
+                    }
+                });
+            }
+            </script>
+            <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBNKpr4auBLgBgiOXJ41UUWTB58MZa6p3E&libraries=places&callback=initAutocomplete" async defer></script>
+    </body>
+    </html>
+    
